@@ -1,0 +1,35 @@
+#:kivy 1.0.9
+
+<Checker>:
+    size: 50, 50
+    canvas:
+        Ellipse:
+            pos: self.pos
+            size: self.size
+
+<Cell>:
+    size: 25, 200
+    canvas:
+        Rectangle:
+            pos:self.pos
+            size:self.size
+
+<IsolaGame>:
+    checkerW: checkerWhite
+    checkerB: checkerBlack
+
+    Label:
+        font_size: 70
+        center_x: root.width * 1 / 2
+        top: root.top
+        text: "ISOLA GAME"
+
+    Checker:
+        id: checkerWhite
+        center: self.parent.center
+
+    Checker:
+        id: checkerBlack
+        center: self.parent.center
+
+    Cell:

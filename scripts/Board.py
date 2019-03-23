@@ -1,7 +1,7 @@
 from enum import Enum
 import numpy as np
 
-from Move import Move
+from scripts.Move import Move
 
 
 class Cell(Enum):
@@ -40,3 +40,8 @@ class Board:
 
         self.is_white_turn = not self.is_white_turn
 
+    def find(self):
+        for i in range(len(self.board)):
+            for j in range(len(self.board[i])):
+                if self.board[i, j] == Cell.PLAYER_WHITE:
+                    pass
