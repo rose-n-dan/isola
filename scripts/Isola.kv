@@ -1,28 +1,108 @@
-#:kivy 1.0.9
+WindowManager:
+    MainWindow:
+    OptionWindow:
+    IsolaGame:
+
+<MainWindow>:
+    name: "main"
+
+    GridLayout:
+        cols: 1
+
+        Button:
+            text: "Start game"
+            on_release:
+                app.root.current = "game"
+
+        Button:
+            text: "Options"
+            on_release:
+                app.root.current = "option"
+                root.manager.transition.direction = "left"
+
+        Button:
+            text: "Exit"
+            on_release: app.get_running_app().stop()
+
+<OptionWindow>:
+    name: "option"
+
+    Button:
+        text: "Change game type"
+
+
+    Button:
+        text: "Return"
+        on_release:
+            app.root.current = "main"
+            root.manager.transition.direction = "right"
+
 
 <Checker>:
-    size: 50, 50
+    size: 10, 10
     canvas:
+        Color:
+            rgb: (100, 100, 100)
         Ellipse:
             pos: self.pos
             size: self.size
 
-<Cell>:
-    size: 25, 200
-    canvas:
-        Rectangle:
-            pos:self.pos
-            size:self.size
 
 <IsolaGame>:
+
+    name: "game"
+
     checkerW: checkerWhite
     checkerB: checkerBlack
 
-    Label:
-        font_size: 70
-        center_x: root.width * 1 / 2
-        top: root.top
-        text: "ISOLA GAME"
+    canvas:
+        Rectangle:
+            pos: self.center_x * 2 / 7, 0
+            size: 10, self.height
+
+        Rectangle:
+            pos: self.center_x * 4 / 7, 0
+            size: 10, self.height
+
+        Rectangle:
+            pos: self.center_x * 6 / 7, 0
+            size: 10, self.height
+
+        Rectangle:
+            pos: self.center_x * 8 / 7, 0
+            size: 10, self.height
+
+        Rectangle:
+            pos: self.center_x * 10 / 7, 0
+            size: 10, self.height
+
+        Rectangle:
+            pos: self.center_x * 12 / 7, 0
+            size: 10, self.height
+
+        Rectangle:
+            pos: 0, self.center_y * 2 / 7
+            size: self.width, 10
+
+        Rectangle:
+            pos: 0, self.center_y * 4 / 7
+            size: self.width, 10
+
+        Rectangle:
+            pos: 0, self.center_y * 6 / 7
+            size: self.width, 10
+
+        Rectangle:
+            pos: 0, self.center_y * 8 / 7
+            size: self.width, 10
+
+        Rectangle:
+            pos: 0, self.center_y * 10 / 7
+            size: self.width, 10
+
+        Rectangle:
+            pos: 0, self.center_y * 12 / 7
+            size: self.width, 10
 
     Checker:
         id: checkerWhite
@@ -32,4 +112,5 @@
         id: checkerBlack
         center: self.parent.center
 
-    Cell:
+
+
