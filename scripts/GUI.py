@@ -26,14 +26,13 @@ class GameTypeWindow(Screen):
 
 
 class Checker(Widget):
-    game_board = Board()
 
-    def move(self):
+    def move(self, board):
         for i in range(7):
             for j in range(7):
-                if self.game_board.board[i, j] == 'W':
+                if board.board[i, j] == Cell.PLAYER_WHITE:
                     self.pos = Vector(250*j, 100*i+30)
-                elif self.game_board.board[i, j] == 'B':
+                elif board.board[i, j] == Cell.PLAYER_BLACK:
                     self.pos = Vector(20*j, 200*i)
 
 
@@ -47,8 +46,8 @@ class IsolaGame(Screen):
         self.checkerW.center = self.center
 
     def update(self, dt):
-        self.checkerB.move()
-        self.checkerW.move()
+        self.checkerB.move(self.board)
+        self.checkerW.move(self.board)
 
     def on_touch_move(self, touch):
         if self.checkerW.pos == touch.pos:
