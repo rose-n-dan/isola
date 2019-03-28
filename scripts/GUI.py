@@ -1,10 +1,8 @@
-import kivy.properties
+from kivy.properties import ObjectProperty
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.vector import Vector
 from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-import kivy.graphics
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 
@@ -23,6 +21,10 @@ class WindowManager(ScreenManager):
     pass
 
 
+class GameTypeWindow(Screen):
+    pass
+
+
 class Checker(Widget):
     game_board = Board()
 
@@ -37,8 +39,8 @@ class Checker(Widget):
 
 class IsolaGame(Screen):
     board = Board()
-    checkerB = kivy.properties.ObjectProperty(None)
-    checkerW = kivy.properties.ObjectProperty(None)
+    checkerB = ObjectProperty(None)
+    checkerW = ObjectProperty(None)
 
     def start_game(self):
         self.checkerB.center = self.center
@@ -66,6 +68,7 @@ class IsolaApp(App):
 
 
 kv = Builder.load_file("Isola.kv")
+
 
 if __name__ == '__main__':
     IsolaApp().run()

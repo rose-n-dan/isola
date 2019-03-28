@@ -1,7 +1,9 @@
 WindowManager:
     MainWindow:
     OptionWindow:
+    GameTypeWindow:
     IsolaGame:
+
 
 <MainWindow>:
     name: "main"
@@ -24,18 +26,42 @@ WindowManager:
             text: "Exit"
             on_release: app.get_running_app().stop()
 
+
+<GameTypeWindow>:
+    name: "game_type"
+
+    GridLayout:
+        cols: 1
+
+        Button:
+            text: "Human vs. Computer"
+            on_release:
+                # TODO change game type
+                app.root.current = "main"
+
+        Button:
+            text: "Computer vs. Computer"
+            on_release:
+                # TODO change game type
+                app.root.current = "main"
+
+
 <OptionWindow>:
     name: "option"
 
-    Button:
-        text: "Change game type"
+    GridLayout:
+        cols: 1
 
+        Button:
+            text: "Change game type"
+            on_release:
+                app.root.current = "game_type"
 
-    Button:
-        text: "Return"
-        on_release:
-            app.root.current = "main"
-            root.manager.transition.direction = "right"
+        Button:
+            text: "Return"
+            on_release:
+                app.root.current = "main"
+                root.manager.transition.direction = "right"
 
 
 <Checker>:
@@ -111,6 +137,4 @@ WindowManager:
     Checker:
         id: checkerBlack
         center: self.parent.center
-
-
 
