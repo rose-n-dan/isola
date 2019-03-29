@@ -1,8 +1,10 @@
+#:import Cell scripts.Board.Cell
+
 WindowManager:
     MainWindow:
     OptionWindow:
     GameTypeWindow:
-    IsolaGame:
+    IsolaWindow:
 
 
 <MainWindow>:
@@ -65,76 +67,81 @@ WindowManager:
 
 
 <Checker>:
-    size: 10, 10
+    size: 100, 100
+    color: None
     canvas:
         Color:
-            rgb: (100, 100, 100)
+            rgb: (100, 100, 100) if self.color == Cell.PLAYER_WHITE else (0, 0, 0)
         Ellipse:
             pos: self.pos
             size: self.size
 
 
-<IsolaGame>:
-
+<IsolaWindow>:
     name: "game"
 
-    checkerW: checkerWhite
-    checkerB: checkerBlack
+    IsolaGame:
 
-    canvas:
-        Rectangle:
-            pos: self.center_x * 2 / 7, 0
-            size: 10, self.height
+        checkerW: checkerWhite
+        checkerB: checkerBlack
 
-        Rectangle:
-            pos: self.center_x * 4 / 7, 0
-            size: 10, self.height
+        canvas:
+            Rectangle:
+                pos: self.center_x * 2 / 7, 0
+                size: 10, self.height
 
-        Rectangle:
-            pos: self.center_x * 6 / 7, 0
-            size: 10, self.height
+            Rectangle:
+                pos: self.center_x * 4 / 7, 0
+                size: 10, self.height
 
-        Rectangle:
-            pos: self.center_x * 8 / 7, 0
-            size: 10, self.height
+            Rectangle:
+                pos: self.center_x * 6 / 7, 0
+                size: 10, self.height
 
-        Rectangle:
-            pos: self.center_x * 10 / 7, 0
-            size: 10, self.height
+            Rectangle:
+                pos: self.center_x * 8 / 7, 0
+                size: 10, self.height
 
-        Rectangle:
-            pos: self.center_x * 12 / 7, 0
-            size: 10, self.height
+            Rectangle:
+                pos: self.center_x * 10 / 7, 0
+                size: 10, self.height
 
-        Rectangle:
-            pos: 0, self.center_y * 2 / 7
-            size: self.width, 10
+            Rectangle:
+                pos: self.center_x * 12 / 7, 0
+                size: 10, self.height
 
-        Rectangle:
-            pos: 0, self.center_y * 4 / 7
-            size: self.width, 10
+            Rectangle:
+                pos: 0, self.center_y * 2 / 7
+                size: self.width, 10
 
-        Rectangle:
-            pos: 0, self.center_y * 6 / 7
-            size: self.width, 10
+            Rectangle:
+                pos: 0, self.center_y * 4 / 7
+                size: self.width, 10
 
-        Rectangle:
-            pos: 0, self.center_y * 8 / 7
-            size: self.width, 10
+            Rectangle:
+                pos: 0, self.center_y * 6 / 7
+                size: self.width, 10
 
-        Rectangle:
-            pos: 0, self.center_y * 10 / 7
-            size: self.width, 10
+            Rectangle:
+                pos: 0, self.center_y * 8 / 7
+                size: self.width, 10
 
-        Rectangle:
-            pos: 0, self.center_y * 12 / 7
-            size: self.width, 10
+            Rectangle:
+                pos: 0, self.center_y * 10 / 7
+                size: self.width, 10
 
-    Checker:
-        id: checkerWhite
-        center: self.parent.center
+            Rectangle:
+                pos: 0, self.center_y * 12 / 7
+                size: self.width, 10
 
-    Checker:
-        id: checkerBlack
-        center: self.parent.center
+        Checker:
+            id: checkerWhite
+            center: 100, 100
+            color: Cell.PLAYER_WHITE
+
+        Checker:
+            id: checkerBlack
+            center: self.parent.center
+            color: Cell.PLAYER_BLACK
+
 

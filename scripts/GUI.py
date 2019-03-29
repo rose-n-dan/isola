@@ -9,6 +9,10 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from scripts.Board import Board, Cell
 
 
+class IsolaWindow(Screen):
+    pass
+
+
 class MainWindow(Screen):
     pass
 
@@ -26,20 +30,24 @@ class GameTypeWindow(Screen):
 
 
 class Checker(Widget):
+    pass
 
-    def move(self, board):
-        for i in range(7):
-            for j in range(7):
-                if board.board[i, j] == Cell.PLAYER_WHITE:
-                    self.pos = Vector(250*j, 100*i+30)
-                elif board.board[i, j] == Cell.PLAYER_BLACK:
-                    self.pos = Vector(20*j, 200*i)
+    # def move(self, board):
+    #     for i in range(7):
+    #         for j in range(7):
+    #             if board.board[i, j] == Cell.PLAYER_WHITE:
+    #                 self.pos = Vector(450*j, 100*i+30)
+    #             elif board.board[i, j] == Cell.PLAYER_BLACK:
+    #                 self.pos = Vector(20*j, 200*i)
 
 
-class IsolaGame(Screen):
-    board = Board()
-    checkerB = ObjectProperty(None)
-    checkerW = ObjectProperty(None)
+class IsolaGame(Widget):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.board = Board()
+        self.checkerB = ObjectProperty(Checker())
+        self.checkerW = ObjectProperty(Checker())
 
     def start_game(self):
         self.checkerB.center = self.center
@@ -49,24 +57,21 @@ class IsolaGame(Screen):
         self.checkerB.move(self.board)
         self.checkerW.move(self.board)
 
-    def on_touch_move(self, touch):
-        if self.checkerW.pos == touch.pos:
-            self.checkerW.pos = touch.pos
-        if self.checkerB.pos == touch.pos:
-            self.checkerB.pos = touch.pos
+    def on_touch_down(self, touch):
+        print('Touch pos: {}'.format(touch))
+        print('Self.pos: {}'.format(self.checkerB.pos))
+        if self.checkerB.collide_point(*touch.pos):
+            print('OK')
 
 
 class IsolaApp(App):
+
     def build(self):
+        kv = Builder.load_file("Isola.kv")
         return kv
 
-        game = IsolaGame()
-        game.start_game()
-        Clock.schedule_interval(game.update, 1.0 / 60.0)
-        return game
-
-
-kv = Builder.load_file("Isola.kv")
+    def on_start(self):
+        pass
 
 
 if __name__ == '__main__':
