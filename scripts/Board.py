@@ -1,5 +1,6 @@
 from enum import Enum
 import numpy as np
+from itertools import product
 
 from scripts.Move import Move
 
@@ -45,3 +46,15 @@ class Board:
             for j in range(len(self.board[i])):
                 if self.board[i, j] == Cell.PLAYER_WHITE:
                     pass
+
+    def find_possible_moves(self, pos):
+        pos = (int(pos[0]), int(pos[1]))
+        options = []
+
+        for move in list(product((-1, 1), (-2, 2))) + list(product((-2, 2), (-1, 1))):
+            option = (pos[0] + move[0], pos[1] + move[1])
+            if 0 <= option[0] < 7 and 0 <= option[1] < 7:
+                if self.board[option] == Cell.EMPTY:
+                    options.append(option)
+
+        return options

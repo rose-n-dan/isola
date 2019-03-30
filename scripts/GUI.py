@@ -5,8 +5,27 @@ from kivy.vector import Vector
 from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.config import Config
+from kivy.core.window import Window
+from kivy.graphics import *
+from kivy.uix.button import Button
 
 from scripts.Board import Board, Cell
+
+
+def cell_to_pixel(pos):
+    return (Window.size[0] * (pos[0] / 7),
+            Window.size[1] * (pos[1] / 7))
+
+
+def pixel_to_cell(pos):
+    return (pos[0] // (Window.size[0] / 7),
+            pos[1] // (Window.size[1] / 7))
+
+
+def get_cell_size():
+    return (Window.size[0] / 7,
+            Window.size[1] / 7)
 
 
 class IsolaWindow(Screen):
@@ -30,15 +49,12 @@ class GameTypeWindow(Screen):
 
 
 class Checker(Widget):
-    pass
 
-    # def move(self, board):
-    #     for i in range(7):
-    #         for j in range(7):
-    #             if board.board[i, j] == Cell.PLAYER_WHITE:
-    #                 self.pos = Vector(450*j, 100*i+30)
-    #             elif board.board[i, j] == Cell.PLAYER_BLACK:
-    #                 self.pos = Vector(20*j, 200*i)
+    def move(self, board):
+        for i in range(7):
+            for j in range(7):
+                if board.board[i, j] == self.color:
+                    self.pos = cell_to_pixel((j, i))
 
 
 class IsolaGame(Widget):
@@ -48,6 +64,7 @@ class IsolaGame(Widget):
         self.board = Board()
         self.checkerB = ObjectProperty(Checker())
         self.checkerW = ObjectProperty(Checker())
+        self.moves = []
 
     def start_game(self):
         self.checkerB.center = self.center
@@ -58,10 +75,18 @@ class IsolaGame(Widget):
         self.checkerW.move(self.board)
 
     def on_touch_down(self, touch):
-        print('Touch pos: {}'.format(touch))
-        print('Self.pos: {}'.format(self.checkerB.pos))
         if self.checkerB.collide_point(*touch.pos):
-            print('OK')
+            cell = pixel_to_cell(touch.pos)
+            options = self.board.find_possible_moves(cell)
+            with self.canvas:
+                Color(0, 1, 0, .4)
+                for option in options:
+                    self.moves.append(Rectangle(pos=cell_to_pixel(option),
+                                                size=get_cell_size()))
+
+    def on_touch_up(self, touch):
+        for rectangle in self.moves:
+            self.canvas.remove(rectangle)
 
 
 class IsolaApp(App):
@@ -71,6 +96,7 @@ class IsolaApp(App):
         return kv
 
     def on_start(self):
+        Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
         pass
 
 

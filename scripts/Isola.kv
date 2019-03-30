@@ -1,10 +1,19 @@
 #:import Cell scripts.Board.Cell
+#:import Window kivy.core.window.Window
+
 
 WindowManager:
     MainWindow:
+        id: mw
+
     OptionWindow:
+        id: ow
+
     GameTypeWindow:
+        id: gtw
+
     IsolaWindow:
+        id: iw
 
 
 <MainWindow>:
@@ -67,11 +76,11 @@ WindowManager:
 
 
 <Checker>:
-    size: 100, 100
+    size: Window.size[0] / 8,  Window.size[1] / 8
     color: None
     canvas:
         Color:
-            rgb: (100, 100, 100) if self.color == Cell.PLAYER_WHITE else (0, 0, 0)
+            rgb: (100, 100, 100) if self.color == Cell.PLAYER_WHITE else (0, 100, 0)
         Ellipse:
             pos: self.pos
             size: self.size
@@ -81,6 +90,8 @@ WindowManager:
     name: "game"
 
     IsolaGame:
+        name: "the_game"
+        id: ig
 
         checkerW: checkerWhite
         checkerB: checkerBlack
