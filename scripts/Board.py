@@ -25,19 +25,10 @@ class Board:
 
     def move(self, move):
         player_color = self.board[move.start_row, move.start_col]
-
-        if player_color != Cell.PLAYER_WHITE and player_color != Cell.PLAYER_BLACK:
-            raise IOError('Starting cell is not a player cell!')
-        elif self.is_white_turn and player_color != Cell.PLAYER_WHITE:
-            raise IOError('It\'s white turn - move white checker')
-        elif not self.is_white_turn and player_color != Cell.PLAYER_BLACK:
-            raise IOError('It\'s black turn - move black checker')
-
-        if not move.is_L_shape():
-            raise IOError('Move is not L shape!')
+        print(player_color, move.start_row, move.start_col)
 
         self.board[move.end_row, move.end_col] = player_color
-        self.board[move.start_row, move.start_col] = Cell.USED
+        self.board[move.start_row, move.start_col] = Cell.EMPTY
 
         self.is_white_turn = not self.is_white_turn
 
@@ -48,7 +39,7 @@ class Board:
                     pass
 
     def find_possible_moves(self, pos):
-        pos = (int(pos[0]), int(pos[1]))
+        pos = (pos[0], pos[1])
         options = []
 
         for move in list(product((-1, 1), (-2, 2))) + list(product((-2, 2), (-1, 1))):

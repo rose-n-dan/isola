@@ -11,6 +11,7 @@ from kivy.graphics import *
 from kivy.uix.button import Button
 
 from scripts.Board import Board, Cell
+from scripts.Move import Move
 
 
 def cell_to_pixel(pos):
@@ -19,8 +20,8 @@ def cell_to_pixel(pos):
 
 
 def pixel_to_cell(pos):
-    return (pos[0] // (Window.size[0] / 7),
-            pos[1] // (Window.size[1] / 7))
+    return (int(pos[0] // (Window.size[0] / 7)),
+            int(pos[1] // (Window.size[1] / 7)))
 
 
 def get_cell_size():
@@ -65,28 +66,48 @@ class IsolaGame(Widget):
         self.checkerB = ObjectProperty(Checker())
         self.checkerW = ObjectProperty(Checker())
         self.moves = []
+        self.current_options = []
+        self.starting_cell = None
 
     def start_game(self):
-        self.checkerB.center = self.center
-        self.checkerW.center = self.center
-
-    def update(self, dt):
         self.checkerB.move(self.board)
         self.checkerW.move(self.board)
 
+    def update(self, dt):
+        # self.checkerB.move(self.board)
+        # self.checkerW.move(self.board)
+        pass
+
     def on_touch_down(self, touch):
         if self.checkerB.collide_point(*touch.pos):
+            self.starting_cell = pixel_to_cell(touch.pos)
             cell = pixel_to_cell(touch.pos)
-            options = self.board.find_possible_moves(cell)
+            self.current_options = self.board.find_possible_moves(cell)
             with self.canvas:
                 Color(0, 1, 0, .4)
-                for option in options:
+                for option in self.current_options:
                     self.moves.append(Rectangle(pos=cell_to_pixel(option),
                                                 size=get_cell_size()))
 
+    def on_touch_move(self, touch):
+        self.checkerB.pos[0] += touch.dx
+        self.checkerB.pos[1] += touch.dy
+
     def on_touch_up(self, touch):
+        if pixel_to_cell(touch.pos) in self.current_options:
+            current_pos = (self.starting_cell[0],
+                           self.starting_cell[1])
+            ending_pos = pixel_to_cell(touch.pos)
+            move = Move(current_pos[1], current_pos[0],
+                        ending_pos[1], ending_pos[0])
+            self.board.move(move)
+            self.checkerB.pos = cell_to_pixel(ending_pos)
+        else:
+            self.checkerB.pos = cell_to_pixel(self.starting_cell)
+
         for rectangle in self.moves:
             self.canvas.remove(rectangle)
+        self.moves.clear()
 
 
 class IsolaApp(App):
@@ -96,6 +117,7 @@ class IsolaApp(App):
         return kv
 
     def on_start(self):
+        self.root.ids.iw.ids.ig.start_game()
         Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
         pass
 
