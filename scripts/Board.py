@@ -41,7 +41,6 @@ class Board:
     def find_possible_moves(self, pos):
         pos = (pos[0], pos[1])
         options = []
-
         for move in list(product((-1, 1), (-2, 2))) + list(product((-2, 2), (-1, 1))):
             option = (pos[0] + move[0], pos[1] + move[1])
             if 0 <= option[0] < 7 and 0 <= option[1] < 7:

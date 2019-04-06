@@ -1,3 +1,5 @@
+from enum import Enum
+
 from kivy.properties import ObjectProperty
 from kivy.app import App
 from kivy.clock import Clock
@@ -60,54 +62,98 @@ class Checker(Widget):
 
 class IsolaGame(Widget):
 
+    class GameState(Enum):
+        WHITE_MOVES = 'w'
+        WHITE_CHOOSES = 'wc'
+        BLACK_MOVES = 'b'
+        BLACK_CHOOSES = 'bc'
+
+        def __repr__(self):
+            return self.value
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.game_state = self.GameState.WHITE_MOVES
         self.board = Board()
-        self.checkerB = ObjectProperty(Checker())
-        self.checkerW = ObjectProperty(Checker())
         self.moves = []
         self.current_options = []
         self.starting_cell = None
 
     def start_game(self):
-        self.checkerB.move(self.board)
-        self.checkerW.move(self.board)
+        self.checkers['w'].move(self.board)
+        self.checkers['b'].move(self.board)
 
     def update(self, dt):
-        # self.checkerB.move(self.board)
-        # self.checkerW.move(self.board)
         pass
 
     def on_touch_down(self, touch):
-        if self.checkerB.collide_point(*touch.pos):
-            self.starting_cell = pixel_to_cell(touch.pos)
-            cell = pixel_to_cell(touch.pos)
-            self.current_options = self.board.find_possible_moves(cell)
-            with self.canvas:
-                Color(0, 1, 0, .4)
-                for option in self.current_options:
-                    self.moves.append(Rectangle(pos=cell_to_pixel(option),
-                                                size=get_cell_size()))
+        print(self.board.board)
+        if self.game_state == self.GameState.WHITE_MOVES or self.game_state == self.GameState.BLACK_MOVES:
+            if self.checkers[self.game_state.value].collide_point(*touch.pos):
+                self.starting_cell = pixel_to_cell(touch.pos)
+                cell = pixel_to_cell(touch.pos)
+                print(touch.pos, cell)
+                self.current_options = self.board.find_possible_moves(cell)
+                with self.canvas:
+                    Color(0, 1, 0, .4)
+                    for option in self.current_options:
+                        self.moves.append(Rectangle(pos=cell_to_pixel(option),
+                                                    size=get_cell_size()))
 
     def on_touch_move(self, touch):
-        self.checkerB.pos[0] += touch.dx
-        self.checkerB.pos[1] += touch.dy
+        if self.starting_cell is not None:
+            self.checkers[self.game_state.value].pos[0] += touch.dx
+            self.checkers[self.game_state.value].pos[1] += touch.dy
 
     def on_touch_up(self, touch):
-        if pixel_to_cell(touch.pos) in self.current_options:
-            current_pos = (self.starting_cell[0],
-                           self.starting_cell[1])
-            ending_pos = pixel_to_cell(touch.pos)
-            move = Move(current_pos[1], current_pos[0],
-                        ending_pos[1], ending_pos[0])
-            self.board.move(move)
-            self.checkerB.pos = cell_to_pixel(ending_pos)
-        else:
-            self.checkerB.pos = cell_to_pixel(self.starting_cell)
+        # if game_state is MOVE
+        if self.game_state == self.GameState.WHITE_MOVES or self.game_state == self.GameState.BLACK_MOVES:
+            # if right checker was touched down and it is touched up on available square
+            if self.starting_cell is not None and pixel_to_cell(touch.pos) in self.current_options:
+                # prepare move
+                current_pos = (self.starting_cell[0], self.starting_cell[1])
+                ending_pos = pixel_to_cell(touch.pos)
+                move = Move(current_pos[0], current_pos[1],
+                            ending_pos[0], ending_pos[1])
+                # move the checker on the board
+                self.board.move(move)
+                # then move its canvas
+                self.checkers[self.game_state.value].pos = cell_to_pixel(ending_pos)
 
-        for rectangle in self.moves:
-            self.canvas.remove(rectangle)
-        self.moves.clear()
+                # changing game_state to <same_player>_CHOOSES
+                if self.game_state == self.GameState.WHITE_MOVES:
+                    self.game_state = self.GameState.WHITE_CHOOSES
+                elif self.game_state == self.GameState.BLACK_MOVES:
+                    self.game_state = self.GameState.BLACK_CHOOSES
+
+            # if right checker was touched down and it is touched up on unavailable square
+            # move it on its starting square
+            elif self.starting_cell is not None:
+                self.checkers[self.game_state.value].pos = cell_to_pixel(self.starting_cell)
+
+            # remove all the leftovers
+            for rectangle in self.moves:
+                self.canvas.remove(rectangle)
+            self.moves.clear()
+            self.starting_cell = None
+
+        # if game_state is CHOOSE
+        elif self.game_state == self.GameState.WHITE_CHOOSES or self.game_state == self.GameState.BLACK_CHOOSES:
+            # for some reason you have to invert position
+            p2c = (pixel_to_cell(touch.pos)[1], pixel_to_cell(touch.pos)[0])
+            if self.board.board[p2c] == Cell.EMPTY:
+                self.board.board[p2c] = Cell.USED
+
+                with self.canvas:
+                    Color(1, 0, 0, .4)
+                    Rectangle(pos=cell_to_pixel(pixel_to_cell(touch.pos)),
+                              size=get_cell_size())
+
+                # changing game_state to <opposite_player>_CHOOSES
+                if self.game_state == self.GameState.WHITE_CHOOSES:
+                    self.game_state = self.GameState.BLACK_MOVES
+                if self.game_state == self.GameState.BLACK_CHOOSES:
+                    self.game_state = self.GameState.WHITE_MOVES
 
 
 class IsolaApp(App):
@@ -119,7 +165,6 @@ class IsolaApp(App):
     def on_start(self):
         self.root.ids.iw.ids.ig.start_game()
         Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
-        pass
 
 
 if __name__ == '__main__':
