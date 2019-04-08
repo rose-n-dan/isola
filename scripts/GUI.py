@@ -15,15 +15,20 @@ from kivy.uix.button import Button
 from scripts.Board import Board, Cell
 from scripts.Move import Move
 
+Config.set('graphics', 'resizable', False)
+Config.set('graphics', 'width', '700')
+Config.set('graphics', 'height', '700')
+Config.write()
+
 
 def cell_to_pixel(pos):
-    return (Window.size[0] * (pos[0] / 7),
-            Window.size[1] * (pos[1] / 7))
+    return (Window.size[0] * (pos[1] / 7),
+            (Window.size[1] * 6 / 7) - (Window.size[1] * pos[0] / 7))
 
 
 def pixel_to_cell(pos):
-    return (int(pos[0] // (Window.size[0] / 7)),
-            int(pos[1] // (Window.size[1] / 7)))
+    return (6 - int(pos[1] // (Window.size[0] / 7)),
+            int(pos[0] // (Window.size[1] / 7)))
 
 
 def get_cell_size():
@@ -57,7 +62,7 @@ class Checker(Widget):
         for i in range(7):
             for j in range(7):
                 if board.board[i, j] == self.color:
-                    self.pos = cell_to_pixel((j, i))
+                    self.pos = cell_to_pixel((i, j))
 
 
 class IsolaGame(Widget):
@@ -95,7 +100,7 @@ class IsolaGame(Widget):
                 print(touch.pos, cell)
                 self.current_options = self.board.find_possible_moves(cell)
                 with self.canvas:
-                    Color(0, 1, 0, .4)
+                    Color(0, 1, 0, .6)
                     for option in self.current_options:
                         self.moves.append(Rectangle(pos=cell_to_pixel(option),
                                                     size=get_cell_size()))
@@ -139,13 +144,11 @@ class IsolaGame(Widget):
 
         # if game_state is CHOOSE
         elif self.game_state == self.GameState.WHITE_CHOOSES or self.game_state == self.GameState.BLACK_CHOOSES:
-            # for some reason you have to invert position
-            p2c = (pixel_to_cell(touch.pos)[1], pixel_to_cell(touch.pos)[0])
-            if self.board.board[p2c] == Cell.EMPTY:
-                self.board.board[p2c] = Cell.USED
+            if self.board.board[pixel_to_cell(touch.pos)] == Cell.EMPTY:
+                self.board.board[pixel_to_cell(touch.pos)] = Cell.USED
 
                 with self.canvas:
-                    Color(1, 0, 0, .4)
+                    Color(1, 0, 0, .6)
                     Rectangle(pos=cell_to_pixel(pixel_to_cell(touch.pos)),
                               size=get_cell_size())
 

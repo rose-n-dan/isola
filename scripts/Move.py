@@ -1,5 +1,5 @@
 class Move:
-    def __init__(self, start_col, start_row, end_col, end_row):
+    def __init__(self, start_row, start_col, end_row, end_col):
         if not (0 <= start_row < 8) or \
            not (0 <= start_col < 8) or \
            not (0 <= end_row < 8) or \
