@@ -67,18 +67,8 @@ class Checker(Widget):
 
 class IsolaGame(Widget):
 
-    class GameState(Enum):
-        WHITE_MOVES = 'w'
-        WHITE_CHOOSES = 'wc'
-        BLACK_MOVES = 'b'
-        BLACK_CHOOSES = 'bc'
-
-        def __repr__(self):
-            return self.value
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.game_state = self.GameState.WHITE_MOVES
         self.board = Board()
         self.moves = []
         self.current_options = []
@@ -93,8 +83,8 @@ class IsolaGame(Widget):
 
     def on_touch_down(self, touch):
         print(self.board.board)
-        if self.game_state == self.GameState.WHITE_MOVES or self.game_state == self.GameState.BLACK_MOVES:
-            if self.checkers[self.game_state.value].collide_point(*touch.pos):
+        if self.board.game_state == self.board.GameState.WHITE_MOVES or self.board.game_state == self.board.GameState.BLACK_MOVES:
+            if self.checkers[self.board.game_state.value].collide_point(*touch.pos):
                 self.starting_cell = pixel_to_cell(touch.pos)
                 cell = pixel_to_cell(touch.pos)
                 print(touch.pos, cell)
@@ -107,12 +97,12 @@ class IsolaGame(Widget):
 
     def on_touch_move(self, touch):
         if self.starting_cell is not None:
-            self.checkers[self.game_state.value].pos[0] += touch.dx
-            self.checkers[self.game_state.value].pos[1] += touch.dy
+            self.checkers[self.board.game_state.value].pos[0] += touch.dx
+            self.checkers[self.board.game_state.value].pos[1] += touch.dy
 
     def on_touch_up(self, touch):
         # if game_state is MOVE
-        if self.game_state == self.GameState.WHITE_MOVES or self.game_state == self.GameState.BLACK_MOVES:
+        if self.board.game_state == self.board.GameState.WHITE_MOVES or self.board.game_state == self.board.GameState.BLACK_MOVES:
             # if right checker was touched down and it is touched up on available square
             if self.starting_cell is not None and pixel_to_cell(touch.pos) in self.current_options:
                 # prepare move
@@ -123,18 +113,18 @@ class IsolaGame(Widget):
                 # move the checker on the board
                 self.board.move(move)
                 # then move its canvas
-                self.checkers[self.game_state.value].pos = cell_to_pixel(ending_pos)
+                self.checkers[self.board.game_state.value].pos = cell_to_pixel(ending_pos)
 
                 # changing game_state to <same_player>_CHOOSES
-                if self.game_state == self.GameState.WHITE_MOVES:
-                    self.game_state = self.GameState.WHITE_CHOOSES
-                elif self.game_state == self.GameState.BLACK_MOVES:
-                    self.game_state = self.GameState.BLACK_CHOOSES
+                if self.board.game_state == self.board.GameState.WHITE_MOVES:
+                    self.board.game_state = self.board.GameState.WHITE_CHOOSES
+                elif self.board.game_state == self.board.GameState.BLACK_MOVES:
+                    self.board.game_state = self.board.GameState.BLACK_CHOOSES
 
             # if right checker was touched down and it is touched up on unavailable square
             # move it on its starting square
             elif self.starting_cell is not None:
-                self.checkers[self.game_state.value].pos = cell_to_pixel(self.starting_cell)
+                self.checkers[self.board.game_state.value].pos = cell_to_pixel(self.starting_cell)
 
             # remove all the leftovers
             for rectangle in self.moves:
@@ -143,7 +133,7 @@ class IsolaGame(Widget):
             self.starting_cell = None
 
         # if game_state is CHOOSE
-        elif self.game_state == self.GameState.WHITE_CHOOSES or self.game_state == self.GameState.BLACK_CHOOSES:
+        elif self.board.game_state == self.board.GameState.WHITE_CHOOSES or self.board.game_state == self.board.GameState.BLACK_CHOOSES:
             if self.board.board[pixel_to_cell(touch.pos)] == Cell.EMPTY:
                 self.board.board[pixel_to_cell(touch.pos)] = Cell.USED
 
@@ -153,10 +143,10 @@ class IsolaGame(Widget):
                               size=get_cell_size())
 
                 # changing game_state to <opposite_player>_CHOOSES
-                if self.game_state == self.GameState.WHITE_CHOOSES:
-                    self.game_state = self.GameState.BLACK_MOVES
-                if self.game_state == self.GameState.BLACK_CHOOSES:
-                    self.game_state = self.GameState.WHITE_MOVES
+                if self.board.game_state == self.board.GameState.WHITE_CHOOSES:
+                    self.board.game_state = self.board.GameState.BLACK_MOVES
+                if self.board.game_state == self.board.GameState.BLACK_CHOOSES:
+                    self.board.game_state = self.board.GameState.WHITE_MOVES
 
 
 class IsolaApp(App):

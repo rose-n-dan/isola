@@ -10,5 +10,6 @@ class Move:
         self.end_row = end_row
         self.end_col = end_col
 
-    def is_L_shape(self):
-        return {abs(self.start_row - self.end_row), abs(self.start_col - self.end_col)} == {1, 2}
+    def undo(self):
+        self.start_col, self.end_col = self.end_col, self.start_col
+        self.start_row, self.end_row = self.end_row, self.start_row
