@@ -80,7 +80,9 @@ def minmax(board, depth):
 
     if depth == MAX_DEPTH or \
        heuristic_value == WHITE_WINS or heuristic_value == BLACK_WINS: # terminal state - game ended
-        return heuristic_value
+        return heuristic_value, _
+
+    best_move = None
 
     if board.game_state == board.GameState.WHITE_MOVES:
         ret_value = BLACK_WINS - 1
@@ -95,14 +97,17 @@ def minmax(board, depth):
                     if board.board[i, j] == Cell.EMPTY:
                         board.board[i, j] = Cell.USED
                         board.game_state = board.GameState.BLACK_MOVES
-                        ret_value = max(ret_value,
+                        new_ret_value = max(ret_value,
                                         minmax(board, depth - 1))
+                        if new_ret_value > ret_value:
+                            best_move = mv
+                        ret_value = new_ret_value
                         # undo choosing
                         board.game_state = board.GameState.WHITE_MOVES
                         board[i, j] = Cell.EMPTY
             # undo moving
             board.move(mv.undo())
-        return ret_value
+        return ret_value, best_move
 
     elif board.game_state == board.GameState.BLACK_MOVES:
         ret_value = WHITE_WINS + 1
