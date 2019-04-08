@@ -1,0 +1,155 @@
+#:import Cell scripts.Board.Cell
+#:import Window kivy.core.window.Window
+
+
+WindowManager:
+    MainWindow:
+        id: mw
+
+    OptionWindow:
+        id: ow
+
+    GameTypeWindow:
+        id: gtw
+
+    IsolaWindow:
+        id: iw
+
+
+<MainWindow>:
+    name: "main"
+
+    GridLayout:
+        cols: 1
+
+        Button:
+            text: "Start game"
+            on_release:
+                app.root.current = "game"
+
+        Button:
+            text: "Options"
+            on_release:
+                app.root.current = "option"
+                root.manager.transition.direction = "left"
+
+        Button:
+            text: "Exit"
+            on_release: app.get_running_app().stop()
+
+
+<GameTypeWindow>:
+    name: "game_type"
+
+    GridLayout:
+        cols: 1
+
+        Button:
+            text: "Human vs. Computer"
+            on_release:
+                # TODO change game type
+                app.root.current = "main"
+
+        Button:
+            text: "Computer vs. Computer"
+            on_release:
+                # TODO change game type
+                app.root.current = "main"
+
+
+<OptionWindow>:
+    name: "option"
+
+    GridLayout:
+        cols: 1
+
+        Button:
+            text: "Change game type"
+            on_release:
+                app.root.current = "game_type"
+
+        Button:
+            text: "Return"
+            on_release:
+                app.root.current = "main"
+                root.manager.transition.direction = "right"
+
+
+<Checker>:
+    size: Window.size[0] / 7,  Window.size[1] / 7
+    color: None
+    canvas:
+        Color:
+            rgb: (100, 100, 100) if self.color == Cell.PLAYER_WHITE else (0, 100, 0)
+        Ellipse:
+            pos: self.pos
+            size: self.size
+
+
+<IsolaWindow>:
+    name: "game"
+
+    IsolaGame:
+        name: "the_game"
+        id: ig
+
+        checkers: {'w': checkerWhite, 'b': checkerBlack}
+
+        canvas:
+            Rectangle:
+                pos: self.center_x * 2 / 7, 0
+                size: 10, self.height
+
+            Rectangle:
+                pos: self.center_x * 4 / 7, 0
+                size: 10, self.height
+
+            Rectangle:
+                pos: self.center_x * 6 / 7, 0
+                size: 10, self.height
+
+            Rectangle:
+                pos: self.center_x * 8 / 7, 0
+                size: 10, self.height
+
+            Rectangle:
+                pos: self.center_x * 10 / 7, 0
+                size: 10, self.height
+
+            Rectangle:
+                pos: self.center_x * 12 / 7, 0
+                size: 10, self.height
+
+            Rectangle:
+                pos: 0, self.center_y * 2 / 7
+                size: self.width, 10
+
+            Rectangle:
+                pos: 0, self.center_y * 4 / 7
+                size: self.width, 10
+
+            Rectangle:
+                pos: 0, self.center_y * 6 / 7
+                size: self.width, 10
+
+            Rectangle:
+                pos: 0, self.center_y * 8 / 7
+                size: self.width, 10
+
+            Rectangle:
+                pos: 0, self.center_y * 10 / 7
+                size: self.width, 10
+
+            Rectangle:
+                pos: 0, self.center_y * 12 / 7
+                size: self.width, 10
+
+        Checker:
+            id: checkerWhite
+            color: Cell.PLAYER_WHITE
+
+        Checker:
+            id: checkerBlack
+            color: Cell.PLAYER_BLACK
+
+
