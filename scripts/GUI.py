@@ -12,7 +12,7 @@ from kivy.core.window import Window
 from kivy.graphics import *
 from kivy.uix.button import Button
 
-from scripts.Board import Board, Cell
+from scripts.Board import Board, Cell, minmax
 from scripts.Move import Move
 
 Config.set('graphics', 'resizable', False)
@@ -158,6 +158,17 @@ class IsolaApp(App):
     def on_start(self):
         self.root.ids.iw.ids.ig.start_game()
         Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
+
+        b = Board()
+        print(b.board)
+        b.board[5, 1] = Cell.USED
+        b.board[5, 5] = Cell.USED
+        b.board[4, 2] = Cell.USED
+        print(b.board)
+        ret_val, mv = minmax(b, 3)
+        print("Heuristic value: {}, move: {}".format(ret_val, mv))
+        b.move(mv)
+        print(b.board)
 
 
 if __name__ == '__main__':
