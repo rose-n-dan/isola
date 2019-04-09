@@ -1,16 +1,12 @@
-from enum import Enum
+#!/usr/bin/env python3
 
-from kivy.properties import ObjectProperty
 from kivy.app import App
-from kivy.clock import Clock
-from kivy.vector import Vector
 from kivy.uix.widget import Widget
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.config import Config
 from kivy.core.window import Window
 from kivy.graphics import *
-from kivy.uix.button import Button
 
 from scripts.Board import Board, Cell, minmax
 from scripts.Move import Move
@@ -79,16 +75,13 @@ class IsolaGame(Widget):
         self.checkers[self.board.white_turn].move(self.board)
         self.checkers[not self.board.white_turn].move(self.board)
 
-
     def update(self, dt):
         pass
 
     def on_touch_down(self, touch):
-        print(self.board.board)
         if self.checkers[self.board.white_turn].collide_point(*touch.pos):
             self.starting_cell = pixel_to_cell(touch.pos)
             cell = pixel_to_cell(touch.pos)
-            print(touch.pos, cell)
             self.current_options = self.board.find_possible_moves(cell)
             with self.canvas:
                 Color(0, 1, 0, .6)
@@ -113,15 +106,12 @@ class IsolaGame(Widget):
             # move the checker on the board
             self.board.move(move)
             # then move its canvas
-            self.checkers[self.board.white_turn].pos = cell_to_pixel(ending_pos)
+            self.checkers[not self.board.white_turn].pos = cell_to_pixel(ending_pos)
             # and paint square on used cell
             with self.canvas:
                 Color(1, 0, 0, 0.6)
                 self.used_cells_canvas.append(Rectangle(pos=cell_to_pixel(current_pos),
                                                         size=get_cell_size()))
-
-            # changing turn
-            self.board.white_turn = not self.board.white_turn
 
         # if right checker was touched down and it is touched up on unavailable square
         # move it on its starting square
@@ -168,7 +158,6 @@ class IsolaApp(App):
         # print("WINNING heuristic value: {}, move: {}".format(ret_val, mv))
         # b.move(mv)
         # print(b.board)
-
 
 
 if __name__ == '__main__':
