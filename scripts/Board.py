@@ -24,29 +24,23 @@ class Cell(Enum):
 
 class Board:
 
-    class GameState(Enum):
-        WHITE_MOVES = 'w'
-        WHITE_CHOOSES = 'wc'
-        BLACK_MOVES = 'b'
-        BLACK_CHOOSES = 'bc'
-
-        def __repr__(self):
-            return self.value
-
     def __init__(self):
         self.board = np.full((7, 7), Cell.EMPTY)
         self.board[0, 3] = Cell.PLAYER_WHITE
         self.board[6, 3] = Cell.PLAYER_BLACK
-        self.game_state = self.GameState.WHITE_MOVES
+        self.white_turn = True
 
     def move(self, move):
         player_color = self.board[move.start_row, move.start_col]
-        print('{} from [{},{}] to [{},{}]'.format(player_color,
-                                                  move.start_row, move.start_col,
-                                                  move.end_row, move.end_row))
-
         self.board[move.end_row, move.end_col] = player_color
-        self.board[move.start_row, move.start_col] = Cell.EMPTY
+        self.board[move.start_row, move.start_col] = Cell.USED
+        self.white_turn = not self.white_turn
+
+    def undo_move(self, mv):
+        tmp_mv = deepcopy(mv)
+        tmp_mv.revert()
+        self.move(tmp_mv)
+        self.board[tmp_mv.start_row, tmp_mv.start_col] = Cell.EMPTY
 
     def find_checker_pos(self, color):
         for i in range(len(self.board)):
@@ -77,8 +71,14 @@ class Board:
             return white_moves - black_moves
 
 
+
+
+
+
 def minmax(board, depth):
     heuristic_value = board.eval_boardstate()
+
+    print("Heuristic value: {}".format(heuristic_value))
 
     if depth == 0 or \
        heuristic_value == WHITE_WINS or heuristic_value == BLACK_WINS: # terminal state - game ended
@@ -86,63 +86,51 @@ def minmax(board, depth):
 
     best_move = None
 
-    if board.game_state == board.GameState.WHITE_MOVES:
+    if board.white_turn:
         ret_value = BLACK_WINS - 1
         for move in board.find_possible_moves(board.find_checker_pos(Cell.PLAYER_WHITE)):
             mv = Move(board.find_checker_pos(Cell.PLAYER_WHITE)[0],
                       board.find_checker_pos(Cell.PLAYER_WHITE)[1],
                       move[0],
                       move[1])
+
             print('The move is: {}'.format(mv))
+
             board.move(mv)
-            for i in range(7):
-                for j in range(7):
-                    if board.board[i, j] == Cell.EMPTY:
-                        board.board[i, j] = Cell.USED
 
-                        print('{} is choosing cell [{}, {}] (at depth {})'.format(board.game_state,
-                                                                                  i, j, depth))
-                        print(board.board)
+            print(board.board)
 
-                        board.game_state = board.GameState.BLACK_MOVES
-                        new_ret_value = max(ret_value,
-                                            minmax(board, depth - 1)[0])
-                        if new_ret_value > ret_value:
-                            best_move = mv
-                        ret_value = new_ret_value
-                        # undo choosing
-                        board.game_state = board.GameState.WHITE_MOVES
-                        board.board[i, j] = Cell.EMPTY
+            new_ret_value = max(ret_value,
+                                minmax(board, depth - 1)[0])
+            if new_ret_value > ret_value:
+                best_move = mv
+            ret_value = new_ret_value
+
             # undo moving
-            board.move(mv.undo())
+            board.undo_move(mv)
+
         return ret_value, best_move
 
-    elif board.game_state == board.GameState.BLACK_MOVES:
+    elif not board.white_turn:
         ret_value = WHITE_WINS + 1
         for move in board.find_possible_moves(board.find_checker_pos(Cell.PLAYER_BLACK)):
             mv = Move(board.find_checker_pos(Cell.PLAYER_BLACK)[0],
                       board.find_checker_pos(Cell.PLAYER_BLACK)[1],
                       move[0],
                       move[1])
+            print('The move is: {}'.format(mv))
+
             board.move(mv)
-            for i in range(7):
-                for j in range(7):
-                    if board.board[i, j] == Cell.EMPTY:
-                        board.board[i, j] = Cell.USED
 
-                        print('{} is choosing cell [{}, {}] (at depth {})'.format(board.game_state,
-                                                                                  i, j, depth))
-                        print(board.board)
+            print(board.board)
 
-                        board.game_state = board.GameState.WHITE_MOVES
-                        new_ret_value = min(ret_value,
-                                            minmax(board, depth - 1)[0])
-                        if new_ret_value > ret_value:
-                            best_move = mv
-                        ret_value = new_ret_value
-                        # undo choosing
-                        board.game_state = board.GameState.BLACK_MOVES
-                        board.board[i, j] = Cell.EMPTY
+            new_ret_value = min(ret_value,
+                                minmax(board, depth - 1)[0])
+            if new_ret_value > ret_value:
+                best_move = mv
+            ret_value = new_ret_value
+
             # undo moving
-            board.move(mv.undo())
+            board.undo_move(mv)
+
         return ret_value, best_move

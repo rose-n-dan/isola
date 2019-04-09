@@ -14,6 +14,8 @@ class Move:
         return '[{}, {}] ---> [{}, {}]'.format(self.start_row, self.start_col,
                                                self.end_row, self.end_col)
 
-    def undo(self):
+    def revert(self):
+        print(self)
         self.start_col, self.end_col = self.end_col, self.start_col
         self.start_row, self.end_row = self.end_row, self.start_row
+        print(self)
