@@ -12,6 +12,7 @@ BLACK_WINS = -100
 MAX_DEPTH = 4
 
 
+
 class Cell(Enum):
     PLAYER_WHITE = 'W'
     PLAYER_BLACK = 'B'
@@ -129,8 +130,9 @@ def minmax(board, depth):
             if new_ret_value > ret_value:
                 best_move = mv
             ret_value = new_ret_value
-
+            
             # undo moving
             board.undo_move(mv)
 
         return ret_value, best_move
+

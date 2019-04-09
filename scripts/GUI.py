@@ -79,6 +79,7 @@ class IsolaGame(Widget):
         self.checkers[self.board.white_turn].move(self.board)
         self.checkers[not self.board.white_turn].move(self.board)
 
+
     def update(self, dt):
         pass
 
@@ -167,6 +168,7 @@ class IsolaApp(App):
         # print("WINNING heuristic value: {}, move: {}".format(ret_val, mv))
         # b.move(mv)
         # print(b.board)
+
 
 
 if __name__ == '__main__':
