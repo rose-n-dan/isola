@@ -66,23 +66,30 @@ class IsolaGame(Widget):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
         self.board = Board()
+        # self.checkers declared in .kv
+
+        # temporary - for each move
         self.current_options = []
         self.current_options_canvas = []
-        self.used_cells_canvas = []
         self.starting_cell = None
+
+        self.used_cells_canvas = []
 
         self.is_black_ai = True
         self.is_white_ai = False
         self.depth = 4
+        self.game_started = False
 
     def start_game(self):
         self.checkers[self.board.white_turn].move(self.board)
         self.checkers[not self.board.white_turn].move(self.board)
 
     def update(self, dt):
-        if (self.is_black_ai and not self.board.white_turn) or \
-                (self.is_white_ai and self.board.white_turn):
+        if self.game_started and ((self.is_black_ai and not self.board.white_turn) or
+                                  (self.is_white_ai and self.board.white_turn)):
+            Clock.usleep(500000)
             ret_val, move = minmax(self.board, self.depth)
             print(ret_val, move)
             self.move_current_checker(move)
