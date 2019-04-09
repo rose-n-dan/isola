@@ -9,9 +9,6 @@ from scripts.Move import Move
 WHITE_WINS = 100
 BLACK_WINS = -100
 
-MAX_DEPTH = 4
-
-
 
 class Cell(Enum):
     PLAYER_WHITE = 'W'
@@ -72,17 +69,13 @@ class Board:
             return white_moves - black_moves
 
 
-
-
-
-
-def minmax(board, depth):
+def alphabeta(board, depth, alpha, beta):
     heuristic_value = board.eval_boardstate()
 
     print("Heuristic value: {}".format(heuristic_value))
 
     if depth == 0 or \
-       heuristic_value == WHITE_WINS or heuristic_value == BLACK_WINS: # terminal state - game ended
+            heuristic_value == WHITE_WINS or heuristic_value == BLACK_WINS:  # terminal state - game ended
         return heuristic_value, None
 
     best_move = None
@@ -102,13 +95,20 @@ def minmax(board, depth):
             print(board.board)
 
             new_ret_value = max(ret_value,
-                                minmax(board, depth - 1)[0])
+                                alphabeta(board, depth - 1, alpha, beta)[0])
+
             if new_ret_value > ret_value:
                 best_move = mv
-            ret_value = new_ret_value
+                ret_value = new_ret_value
+
+            alpha = max(alpha, ret_value)
 
             # undo moving
             board.undo_move(mv)
+
+            # alpha-beta pruning
+            if beta <= alpha:
+                break
 
         return ret_value, best_move
 
@@ -126,13 +126,19 @@ def minmax(board, depth):
             print(board.board)
 
             new_ret_value = min(ret_value,
-                                minmax(board, depth - 1)[0])
+                                alphabeta(board, depth - 1, alpha, beta)[0])
+
             if new_ret_value < ret_value:
                 best_move = mv
-            ret_value = new_ret_value
-            
+                ret_value = new_ret_value
+
+            beta = min(beta, ret_value)
+
             # undo moving
             board.undo_move(mv)
 
-        return ret_value, best_move
+            # alpha-beta pruning
+            if beta <= alpha:
+                break
 
+        return ret_value, best_move

@@ -9,7 +9,7 @@ from kivy.core.window import Window
 from kivy.graphics import *
 from kivy.clock import Clock
 
-from scripts.Board import Board, Cell, minmax
+from scripts.Board import Board, Cell, alphabeta
 from scripts.Move import Move
 
 Config.set('graphics', 'resizable', False)
@@ -90,7 +90,7 @@ class IsolaGame(Widget):
         if self.game_started and ((self.is_black_ai and not self.board.white_turn) or
                                   (self.is_white_ai and self.board.white_turn)):
             Clock.usleep(500000)
-            ret_val, move = minmax(self.board, self.depth)
+            ret_val, move = alphabeta(self.board, self.depth, -1000, 1000)
             print(ret_val, move)
             self.move_current_checker(move)
             print(self.board.board)
