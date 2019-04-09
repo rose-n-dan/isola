@@ -12,7 +12,7 @@ from kivy.core.window import Window
 from kivy.graphics import *
 from kivy.uix.button import Button
 
-from scripts.Board import Board, Cell
+from scripts.Board import Board, Cell, minmax
 from scripts.Move import Move
 
 Config.set('graphics', 'resizable', False)
@@ -67,96 +67,72 @@ class Checker(Widget):
 
 class IsolaGame(Widget):
 
-    class GameState(Enum):
-        WHITE_MOVES = 'w'
-        WHITE_CHOOSES = 'wc'
-        BLACK_MOVES = 'b'
-        BLACK_CHOOSES = 'bc'
-
-        def __repr__(self):
-            return self.value
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.game_state = self.GameState.WHITE_MOVES
         self.board = Board()
-        self.moves = []
         self.current_options = []
+        self.current_options_canvas = []
+        self.used_cells_canvas = []
         self.starting_cell = None
 
     def start_game(self):
-        self.checkers['w'].move(self.board)
-        self.checkers['b'].move(self.board)
+        self.checkers[self.board.white_turn].move(self.board)
+        self.checkers[not self.board.white_turn].move(self.board)
+
 
     def update(self, dt):
         pass
 
     def on_touch_down(self, touch):
         print(self.board.board)
-        if self.game_state == self.GameState.WHITE_MOVES or self.game_state == self.GameState.BLACK_MOVES:
-            if self.checkers[self.game_state.value].collide_point(*touch.pos):
-                self.starting_cell = pixel_to_cell(touch.pos)
-                cell = pixel_to_cell(touch.pos)
-                print(touch.pos, cell)
-                self.current_options = self.board.find_possible_moves(cell)
-                with self.canvas:
-                    Color(0, 1, 0, .6)
-                    for option in self.current_options:
-                        self.moves.append(Rectangle(pos=cell_to_pixel(option),
-                                                    size=get_cell_size()))
+        if self.checkers[self.board.white_turn].collide_point(*touch.pos):
+            self.starting_cell = pixel_to_cell(touch.pos)
+            cell = pixel_to_cell(touch.pos)
+            print(touch.pos, cell)
+            self.current_options = self.board.find_possible_moves(cell)
+            with self.canvas:
+                Color(0, 1, 0, .6)
+                for option in self.current_options:
+                    self.current_options_canvas.append(Rectangle(pos=cell_to_pixel(option),
+                                                                 size=get_cell_size()))
 
     def on_touch_move(self, touch):
         if self.starting_cell is not None:
-            self.checkers[self.game_state.value].pos[0] += touch.dx
-            self.checkers[self.game_state.value].pos[1] += touch.dy
+            self.checkers[self.board.white_turn].pos[0] += touch.dx
+            self.checkers[self.board.white_turn].pos[1] += touch.dy
 
     def on_touch_up(self, touch):
-        # if game_state is MOVE
-        if self.game_state == self.GameState.WHITE_MOVES or self.game_state == self.GameState.BLACK_MOVES:
-            # if right checker was touched down and it is touched up on available square
-            if self.starting_cell is not None and pixel_to_cell(touch.pos) in self.current_options:
-                # prepare move
-                current_pos = (self.starting_cell[0], self.starting_cell[1])
-                ending_pos = pixel_to_cell(touch.pos)
-                move = Move(current_pos[0], current_pos[1],
-                            ending_pos[0], ending_pos[1])
-                # move the checker on the board
-                self.board.move(move)
-                # then move its canvas
-                self.checkers[self.game_state.value].pos = cell_to_pixel(ending_pos)
+        # if right checker was touched down and it is touched up on available square
+        if self.starting_cell is not None and pixel_to_cell(touch.pos) in self.current_options:
+            # prepare move
+            current_pos = (self.starting_cell[0], self.starting_cell[1])
+            ending_pos = pixel_to_cell(touch.pos)
+            move = Move(current_pos[0], current_pos[1],
+                        ending_pos[0], ending_pos[1])
 
-                # changing game_state to <same_player>_CHOOSES
-                if self.game_state == self.GameState.WHITE_MOVES:
-                    self.game_state = self.GameState.WHITE_CHOOSES
-                elif self.game_state == self.GameState.BLACK_MOVES:
-                    self.game_state = self.GameState.BLACK_CHOOSES
+            # move the checker on the board
+            self.board.move(move)
+            # then move its canvas
+            self.checkers[self.board.white_turn].pos = cell_to_pixel(ending_pos)
+            # and paint square on used cell
+            with self.canvas:
+                Color(1, 0, 0, 0.6)
+                self.used_cells_canvas.append(Rectangle(pos=cell_to_pixel(current_pos),
+                                                        size=get_cell_size()))
 
-            # if right checker was touched down and it is touched up on unavailable square
-            # move it on its starting square
-            elif self.starting_cell is not None:
-                self.checkers[self.game_state.value].pos = cell_to_pixel(self.starting_cell)
+            # changing turn
+            self.board.white_turn = not self.board.white_turn
 
-            # remove all the leftovers
-            for rectangle in self.moves:
-                self.canvas.remove(rectangle)
-            self.moves.clear()
-            self.starting_cell = None
+        # if right checker was touched down and it is touched up on unavailable square
+        # move it on its starting square
+        elif self.starting_cell is not None:
+            self.checkers[self.board.white_turn].pos = cell_to_pixel(self.starting_cell)
 
-        # if game_state is CHOOSE
-        elif self.game_state == self.GameState.WHITE_CHOOSES or self.game_state == self.GameState.BLACK_CHOOSES:
-            if self.board.board[pixel_to_cell(touch.pos)] == Cell.EMPTY:
-                self.board.board[pixel_to_cell(touch.pos)] = Cell.USED
-
-                with self.canvas:
-                    Color(1, 0, 0, .6)
-                    Rectangle(pos=cell_to_pixel(pixel_to_cell(touch.pos)),
-                              size=get_cell_size())
-
-                # changing game_state to <opposite_player>_CHOOSES
-                if self.game_state == self.GameState.WHITE_CHOOSES:
-                    self.game_state = self.GameState.BLACK_MOVES
-                if self.game_state == self.GameState.BLACK_CHOOSES:
-                    self.game_state = self.GameState.WHITE_MOVES
+        # remove all the leftovers
+        for rectangle in self.current_options_canvas:
+            self.canvas.remove(rectangle)
+        self.current_options_canvas.clear()
+        self.starting_cell = None
 
 
 class IsolaApp(App):
@@ -167,7 +143,32 @@ class IsolaApp(App):
 
     def on_start(self):
         self.root.ids.iw.ids.ig.start_game()
-        Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
+        # Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
+
+        # SHOWCASE
+        # b = Board()
+        # b.board[5, 1] = Cell.USED
+        # b.board[5, 5] = Cell.USED
+        # b.board[4, 2] = Cell.USED
+        # b.board[0, 3] = Cell.EMPTY
+        # b.board[1, 0] = Cell.PLAYER_WHITE
+        # # print(b.board)
+        # b.board[5, 2] = Cell.USED
+        # b.board[3, 2] = Cell.USED
+        # b.board[2, 5] = Cell.USED
+        # b.board[3, 6] = Cell.USED
+        # b.board[5, 6] = Cell.USED
+        # b.board[6, 5] = Cell.USED
+        # b.board[0, 2] = Cell.USED
+        #
+        # # b.board[4, 4] = Cell.PLAYER_BLACK
+        # # b.board[6, 3] = Cell.USED
+        #
+        # ret_val, mv = minmax(b, 3)
+        # print("WINNING heuristic value: {}, move: {}".format(ret_val, mv))
+        # b.move(mv)
+        # print(b.board)
+
 
 
 if __name__ == '__main__':
