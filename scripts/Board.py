@@ -127,7 +127,7 @@ def minmax(board, depth):
 
             new_ret_value = min(ret_value,
                                 minmax(board, depth - 1)[0])
-            if new_ret_value > ret_value:
+            if new_ret_value < ret_value:
                 best_move = mv
             ret_value = new_ret_value
             

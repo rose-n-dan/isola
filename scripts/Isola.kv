@@ -45,15 +45,27 @@ WindowManager:
         cols: 1
 
         Button:
+            text: "Human vs. Human"
+            on_release:
+                app.root.ids.iw.ids.ig.is_black_ai = False
+                app.root.ids.iw.ids.ig.is_white_ai = False
+
+                app.root.current = "main"
+
+        Button:
             text: "Human vs. Computer"
             on_release:
-                # TODO change game type
+                app.root.ids.iw.ids.ig.is_black_ai = True
+                app.root.ids.iw.ids.ig.is_white_ai = False
+
                 app.root.current = "main"
 
         Button:
             text: "Computer vs. Computer"
             on_release:
-                # TODO change game type
+                app.root.ids.iw.ids.ig.is_black_ai = True
+                app.root.ids.iw.ids.ig.is_white_ai = True
+
                 app.root.current = "main"
 
 
@@ -61,12 +73,33 @@ WindowManager:
     name: "option"
 
     GridLayout:
+        canvas:
+            Color:
+                rgba: 0.25, 0.25, 0.25, 0.85
+            Rectangle:
+                pos: root.pos
+                size: root.size
         cols: 1
 
         Button:
             text: "Change game type"
             on_release:
                 app.root.current = "game_type"
+
+        BoxLayout:
+            orientation: 'vertical'
+
+            Slider:
+                id: depth
+                min: 1
+                max: 10
+                step: 1
+                value: 4
+                on_touch_up:
+                    app.root.ids.iw.ids.ig.depth = depth.value
+
+            Label:
+                text: 'Alpha-beta pruning depth = {}'.format(depth.value)
 
         Button:
             text: "Return"
