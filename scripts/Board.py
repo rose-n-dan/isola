@@ -9,9 +9,6 @@ from scripts.Move import Move
 WHITE_WINS = 100
 BLACK_WINS = -100
 
-MAX_DEPTH = 4
-
-
 
 class Cell(Enum):
     PLAYER_WHITE = 'W'

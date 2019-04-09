@@ -7,6 +7,7 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.config import Config
 from kivy.core.window import Window
 from kivy.graphics import *
+from kivy.clock import Clock
 
 from scripts.Board import Board, Cell, alphabeta
 from scripts.Move import Move
@@ -65,18 +66,45 @@ class IsolaGame(Widget):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+
         self.board = Board()
+        # self.checkers declared in .kv
+
+        # temporary - for each move
         self.current_options = []
         self.current_options_canvas = []
-        self.used_cells_canvas = []
         self.starting_cell = None
+
+        self.used_cells_canvas = []
+
+        self.is_black_ai = True
+        self.is_white_ai = False
+        self.depth = 4
+        self.game_started = False
 
     def start_game(self):
         self.checkers[self.board.white_turn].move(self.board)
         self.checkers[not self.board.white_turn].move(self.board)
 
     def update(self, dt):
-        pass
+        if self.game_started and ((self.is_black_ai and not self.board.white_turn) or
+                                  (self.is_white_ai and self.board.white_turn)):
+            Clock.usleep(500000)
+            ret_val, move = alphabeta(self.board, self.depth, -1000, 1000)
+            print(ret_val, move)
+            self.move_current_checker(move)
+            print(self.board.board)
+
+    def move_current_checker(self, mv):
+        # move the checker on the board
+        self.board.move(mv)
+        # then move its canvas
+        self.checkers[not self.board.white_turn].pos = cell_to_pixel((mv.end_row, mv.end_col))
+        # and paint square on used cell
+        with self.canvas:
+            Color(1, 0, 0, 0.6)
+            self.used_cells_canvas.append(Rectangle(pos=cell_to_pixel((mv.start_row, mv.start_col)),
+                                                    size=get_cell_size()))
 
     def on_touch_down(self, touch):
         if self.checkers[self.board.white_turn].collide_point(*touch.pos):
@@ -103,15 +131,7 @@ class IsolaGame(Widget):
             move = Move(current_pos[0], current_pos[1],
                         ending_pos[0], ending_pos[1])
 
-            # move the checker on the board
-            self.board.move(move)
-            # then move its canvas
-            self.checkers[not self.board.white_turn].pos = cell_to_pixel(ending_pos)
-            # and paint square on used cell
-            with self.canvas:
-                Color(1, 0, 0, 0.6)
-                self.used_cells_canvas.append(Rectangle(pos=cell_to_pixel(current_pos),
-                                                        size=get_cell_size()))
+            self.move_current_checker(move)
 
         # if right checker was touched down and it is touched up on unavailable square
         # move it on its starting square
@@ -133,7 +153,7 @@ class IsolaApp(App):
 
     def on_start(self):
         self.root.ids.iw.ids.ig.start_game()
-        # Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
+        Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
 
         # SHOWCASE
         # b = Board()
