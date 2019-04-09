@@ -8,7 +8,7 @@ from kivy.config import Config
 from kivy.core.window import Window
 from kivy.graphics import *
 
-from scripts.Board import Board, Cell, minmax
+from scripts.Board import Board, Cell, alphabeta
 from scripts.Move import Move
 
 Config.set('graphics', 'resizable', False)
