@@ -8,13 +8,12 @@ from kivy.config import Config
 from kivy.core.window import Window
 from kivy.graphics import *
 from kivy.clock import Clock
-from kivy.uix.popup import Popup
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.modalview import ModalView
 
-from scripts.Board import Board, Cell, alphabeta
+
+from scripts.Alphabeta import alphabeta
+from scripts.Board import Board
 from scripts.Move import Move
+
 
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'width', '700')
@@ -115,7 +114,6 @@ class IsolaGame(Widget):
             Clock.usleep(500000)
             App.get_running_app().root.current = "endb"
             return
-
         if self.game_started and ((self.is_black_ai and not self.board.white_turn) or
                                   (self.is_white_ai and self.board.white_turn)):
             ret_val, move = alphabeta(self.board, self.depth, -1000, 1000)
