@@ -15,6 +15,12 @@ WindowManager:
     IsolaWindow:
         id: iw
 
+    EndGameWindowWhite:
+        id: egww
+
+    EndGameWindowBlack:
+        id: egwb
+
 
 <MainWindow>:
     name: "main"
@@ -120,6 +126,35 @@ WindowManager:
             size: self.size
 
 
+<EndGameWindowWhite>:
+    name: "endw"
+
+    GridLayout:
+        cols: 1
+
+        Label:
+            text: 'WHITE WINS!!!'
+
+        Button:
+            text: "Exit"
+            on_release:
+                app.get_running_app().stop()
+
+<EndGameWindowBlack>:
+    name: "endb"
+
+    GridLayout:
+        cols: 1
+
+        Label:
+            text: 'BLACK WINS!!!'
+
+        Button:
+            text: "Exit"
+            on_release:
+                app.get_running_app().stop()
+
+
 <IsolaWindow>:
     name: "game"
 
@@ -185,5 +220,4 @@ WindowManager:
         Checker:
             id: checkerBlack
             color: Cell.PLAYER_BLACK
-
 

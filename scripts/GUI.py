@@ -8,6 +8,11 @@ from kivy.config import Config
 from kivy.core.window import Window
 from kivy.graphics import *
 from kivy.clock import Clock
+from kivy.uix.popup import Popup
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.modalview import ModalView
+
 
 from scripts.Board import Board, Cell, alphabeta
 from scripts.Move import Move
@@ -53,6 +58,14 @@ class GameTypeWindow(Screen):
     pass
 
 
+class EndGameWindowWhite(Screen):
+    pass
+
+
+class EndGameWindowBlack(Screen):
+    pass
+
+
 class Checker(Widget):
 
     def move(self, board):
@@ -77,23 +90,39 @@ class IsolaGame(Widget):
 
         self.used_cells_canvas = []
 
+        self.winning_canvas = []
+
         self.is_black_ai = True
         self.is_white_ai = False
         self.depth = 4
         self.game_started = False
+
+        self.game_end = False
 
     def start_game(self):
         self.checkers[self.board.white_turn].move(self.board)
         self.checkers[not self.board.white_turn].move(self.board)
 
     def update(self, dt):
+        if self.board.eval_boardstate() == 100:
+            self.game_started = False
+            self.game_end = True
+            Clock.usleep(500000)
+            App.get_running_app().root.current = "endw"
+            return
+
+        elif self.board.eval_boardstate() == -100:
+            self.game_started = False
+            self.game_end = True
+            Clock.usleep(500000)
+            App.get_running_app().root.current = "endb"
+            return
+
         if self.game_started and ((self.is_black_ai and not self.board.white_turn) or
                                   (self.is_white_ai and self.board.white_turn)):
-            Clock.usleep(500000)
             ret_val, move = alphabeta(self.board, self.depth, -1000, 1000)
-            print(ret_val, move)
             self.move_current_checker(move)
-            print(self.board.board)
+            Clock.usleep(100000)
 
     def move_current_checker(self, mv):
         # move the checker on the board
@@ -153,7 +182,8 @@ class IsolaApp(App):
 
     def on_start(self):
         self.root.ids.iw.ids.ig.start_game()
-        Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
+        if not self.root.ids.iw.ids.ig.game_end:
+            Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
 
         # SHOWCASE
         # b = Board()
