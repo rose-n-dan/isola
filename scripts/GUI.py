@@ -13,6 +13,7 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.modalview import ModalView
 
+
 from scripts.Board import Board, Cell, alphabeta
 from scripts.Move import Move
 
@@ -95,6 +96,7 @@ class IsolaGame(Widget):
         self.is_white_ai = False
         self.depth = 4
         self.game_started = False
+
         self.game_end = False
 
     def start_game(self):
@@ -182,7 +184,6 @@ class IsolaApp(App):
         self.root.ids.iw.ids.ig.start_game()
         if not self.root.ids.iw.ids.ig.game_end:
             Clock.schedule_interval(self.root.ids.iw.ids.ig.update, 1.0 / 60.0)
-
 
         # SHOWCASE
         # b = Board()
