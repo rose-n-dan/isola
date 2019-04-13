@@ -13,9 +13,10 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.modalview import ModalView
 
-
-from scripts.Board import Board, Cell, alphabeta
+from scripts.Alphabeta import alphabeta
+from scripts.Board import Board
 from scripts.Move import Move
+
 
 Config.set('graphics', 'resizable', False)
 Config.set('graphics', 'width', '700')
